@@ -147,14 +147,14 @@ def load_data(data_folder: str = None) -> Tuple[List[ndarray], List[ndarray]]:
     from os import listdir
     from numpy import loadtxt, array, expand_dims, stack
     if data_folder is None:
-        data_folder = ".\\data"
+        data_folder = "./data"
     files = listdir(data_folder)
     X = []
     T = []
 
     for file in files:
         try:
-            temp = loadtxt(f'{data_folder}\\{file}', delimiter=',')
+            temp = loadtxt(f'{data_folder}/{file}', delimiter=',')
         except ValueError:
             print(file)
         x = expand_dims(temp[:, 1:15], 0)
