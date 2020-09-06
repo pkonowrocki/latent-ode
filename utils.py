@@ -1,16 +1,17 @@
 from typing import Tuple, List, Union
 from numpy import ndarray
 import matplotlib.pyplot as plt
-from numpy import random
+from numpy import random, log10
 from torch import device, from_numpy, no_grad
 
 
 class RunningAverageMeter(object):
-    def __init__(self, momentum=0.5):
+    def __init__(self, momentum=0.5, use_log_scale=False):
         self.momentum = momentum
         self.reset()
         self.loss_history = []
         self.avg_history = []
+        self.use_log_scale = use_log_scale
 
     def reset(self):
         self.val = None
@@ -27,6 +28,9 @@ class RunningAverageMeter(object):
 
     def visualise(self, show_fig=False, save_to=None):
         plt.figure()
+        if self.use_log_scale:
+            plt.yscale('log')
+
         plt.plot(self.loss_history, 'b', label='loss')
         plt.plot(self.avg_history, 'r', label='avg loss')
         plt.legend()
