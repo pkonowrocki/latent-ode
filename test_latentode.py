@@ -47,6 +47,7 @@ if __name__ == '__main__':
     # init model
     latentODE = LatentODE(
         latent_size=latent_size,
+        match=True,
         obs_size=observation_size,
         hidden_size=hidden_state_size,
         output_size=output_size,

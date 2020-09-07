@@ -4,7 +4,7 @@ from typing import Iterator, Tuple
 import torch.nn as nn
 from ModuleODE import ExampleModuleODE
 from RnnCell import RnnCell
-from torch import Tensor, device, randn, exp
+from torch import Tensor, device, randn, ones
 from torch.nn import Parameter
 from torchdiffeq import odeint
 
@@ -19,13 +19,14 @@ class LatentODE(nn.Module, ABC):
                  device: device = device("cpu"),
                  ode_fun: nn.Module = None,
                  rnn_cell: nn.Module = None,
-                 decoder: nn.Module = None
-                 ):
+                 decoder: nn.Module = None,
+                 match: bool = False):
         super(LatentODE, self).__init__()
         self.hidden_size = hidden_size
         self.latent_size = latent_size
         self.output_size = output_size
         self.device = device
+        self.match = match
 
         if rnn_cell:
             self.rnn_cell = rnn_cell
@@ -73,6 +74,10 @@ class LatentODE(nn.Module, ABC):
         z0 = epsilon * qz0_var + qz0_mean
         pred_z = odeint(self.ode_fun, z0, t).permute(1, 0, 2)
         pred_x = self.decoder(pred_z)
+        if self.match:
+            dx = (x[:, x.shape[1]-1:x.shape[1], 3:4] - pred_x[:, x.shape[1]-1:x.shape[1], :])
+            dx = dx * ones(pred_x.shape, device=self.device)
+            pred_x = pred_x + dx
         return pred_x, z0, qz0_mean, qz0_var
 
     def parameters(self, recurse: bool = True) -> Iterator[Parameter]:
